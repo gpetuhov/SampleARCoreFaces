@@ -3,6 +3,10 @@ Android ARCore Augmented Faces example.
 
 ## 3D Model used
 
+Google Canonical Face Mesh:
+
+https://github.com/google-ar/sceneform-android-sdk/blob/master/assets/canonical_face_mesh.fbx
+
 Reflective Geisha by Simon W:
 
 https://poly.google.com/view/1GNnRUBYXGn
