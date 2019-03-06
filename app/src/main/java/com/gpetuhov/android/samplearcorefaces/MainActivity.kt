@@ -76,7 +76,7 @@ class MainActivity : AppCompatActivity() {
         // Load the face regions renderable.
         // This is a skinned model that renders 3D objects mapped to the regions of the augmented face.
         ModelRenderable.builder()
-            .setSource(this, Uri.parse("file:///android_asset/canonical_face_mesh.sfb"))
+            .setSource(this, Uri.parse("file:///android_asset/model.sfb"))
             .build()
             .thenAccept { renderable ->
                 modelRenderable = renderable
