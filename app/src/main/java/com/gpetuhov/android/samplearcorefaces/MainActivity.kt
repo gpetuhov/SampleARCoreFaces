@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.google.ar.core.AugmentedFace
 import com.google.ar.core.TrackingState
+import com.google.ar.sceneform.FrameTime
 import com.google.ar.sceneform.rendering.ModelRenderable
 import com.google.ar.sceneform.rendering.Renderable
 import com.google.ar.sceneform.ux.AugmentedFaceNode
@@ -36,46 +37,11 @@ class MainActivity : AppCompatActivity() {
 
         loadModel()
 
-        val sceneView = arFragment?.arSceneView
-
         // This is important to make sure that the camera stream renders first so that
         // the face mesh occlusion works correctly.
-        sceneView?.cameraStreamRenderPriority = Renderable.RENDER_PRIORITY_FIRST
+        arFragment?.arSceneView?.cameraStreamRenderPriority = Renderable.RENDER_PRIORITY_FIRST
 
-        val scene = sceneView?.scene
-
-        scene?.addOnUpdateListener { frameTime ->
-            if (modelRenderable == null) {
-                return@addOnUpdateListener
-            }
-
-            val faceList = sceneView.session!!.getAllTrackables(AugmentedFace::class.java)
-
-            // Make new AugmentedFaceNodes for any new faces.
-            for (face in faceList) {
-                if (!faceNodeMap.containsKey(face)) {
-                    val faceNode = AugmentedFaceNode(face)
-                    faceNode.setParent(scene)
-                    faceNode.faceRegionsRenderable = modelRenderable
-
-                    // TODO: add texture
-//                    faceNode.faceMeshTexture = faceMeshTexture
-                    faceNodeMap[face] = faceNode
-                }
-            }
-
-            // Remove any AugmentedFaceNodes associated with an AugmentedFace that stopped tracking.
-            val iter = faceNodeMap.entries.iterator()
-            while (iter.hasNext()) {
-                val entry = iter.next()
-                val face = entry.key
-                if (face.trackingState == TrackingState.STOPPED) {
-                    val faceNode = entry.value
-                    faceNode.setParent(null)
-                    iter.remove()
-                }
-            }
-        }
+        arFragment?.arSceneView?.scene?.addOnUpdateListener(::onUpdateFrame)
     }
 
     /**
@@ -121,5 +87,37 @@ class MainActivity : AppCompatActivity() {
                 toast("Unable to load renderable")
                 null
             }
+
+        // In this example we have no texture, only model
+    }
+
+    private fun onUpdateFrame(frameTime: FrameTime) {
+        if (modelRenderable == null) {
+            return
+        }
+
+        val faceList = arFragment?.arSceneView?.session?.getAllTrackables(AugmentedFace::class.java) ?: mutableListOf()
+
+        // Make new AugmentedFaceNodes for any new faces.
+        for (face in faceList) {
+            if (!faceNodeMap.containsKey(face)) {
+                val faceNode = AugmentedFaceNode(face)
+                faceNode.setParent(arFragment?.arSceneView?.scene)
+                faceNode.faceRegionsRenderable = modelRenderable
+                faceNodeMap[face] = faceNode
+            }
+        }
+
+        // Remove any AugmentedFaceNodes associated with an AugmentedFace that stopped tracking.
+        val iter = faceNodeMap.entries.iterator()
+        while (iter.hasNext()) {
+            val entry = iter.next()
+            val face = entry.key
+            if (face.trackingState == TrackingState.STOPPED) {
+                val faceNode = entry.value
+                faceNode.setParent(null)
+                iter.remove()
+            }
+        }
     }
 }
