@@ -11,6 +11,8 @@ Halloween Pumpkin by Neil Realubit:
 
 https://poly.google.com/view/2Z1UzUc0No4
 
+NOTE that for proper positioning of the model above the detected face, models should be created from the canonical face mesh.
+
 ## Requirements
 * Android Studio 3.5 Canary 6
 * Kotlin 1.3.30-eap-11
